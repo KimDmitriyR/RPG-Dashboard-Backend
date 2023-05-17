@@ -49,6 +49,7 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 
 	type request struct {
 		Email    string `json:"email"`
+		UserName string `json:"user_name"`
 		Password string `json:"password"`
 	}
 
@@ -61,6 +62,7 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 
 		u := &model.User{
 			Email:    req.Email,
+			UserName: req.UserName,
 			Password: req.Password,
 		}
 
