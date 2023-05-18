@@ -43,6 +43,8 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *server) configureRouter() {
 	s.router.HandleFunc("/users", s.handleUsersCreate()).Methods("POST")
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
+	s.router.HandleFunc("/task", s.handlerTaskCreate()).Methods("POST")
+	s.router.HandleFunc("/users/get", s.handleGetUser()).Methods("POST")
 }
 
 func (s *server) handleUsersCreate() http.HandlerFunc {
@@ -109,6 +111,66 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 		}
 
 		s.respond(w, r, http.StatusOK, u)
+	}
+}
+
+func (s *server) handlerTaskCreate() http.HandlerFunc {
+
+	type request struct {
+		Email_curator  string `json:"email_curator"`
+		Email_employee string `json:"email_employee"`
+		Description    string `json:"description"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		u, err := s.store.User().FindByMail(req.Email_curator)
+		if err != nil || u.UserRole != "curator" {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		t := &model.Task{
+			Email_curator:  req.Email_curator,
+			Email_employee: req.Email_employee,
+			Description:    req.Description,
+		}
+
+		if err := s.store.Task().Create(t); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusCreated, t)
+
+	}
+}
+
+func (s *server) handleGetUser() http.HandlerFunc {
+
+	type request struct {
+		Id int `json:"id"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		u, err := s.store.User().FindById(req.Id)
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusAccepted, u)
 	}
 }
 

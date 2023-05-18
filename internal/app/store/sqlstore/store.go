@@ -10,6 +10,7 @@ import (
 type Store struct {
 	db             *sql.DB
 	UserRepository *UserRepository
+	TaskRepository *TaskRepository
 }
 
 func New(db *sql.DB) *Store {
@@ -28,4 +29,16 @@ func (s *Store) User() store.UserRepository {
 	}
 
 	return s.UserRepository
+}
+
+func (s *Store) Task() store.TaskRepository {
+	if s.TaskRepository != nil {
+		return s.TaskRepository
+	}
+
+	s.TaskRepository = &TaskRepository{
+		store: s,
+	}
+
+	return s.TaskRepository
 }
