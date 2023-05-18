@@ -51,6 +51,7 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 		Email    string `json:"email"`
 		UserName string `json:"user_name"`
 		Password string `json:"password"`
+		Role     string `json:"user_role"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +65,7 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 			Email:    req.Email,
 			UserName: req.UserName,
 			Password: req.Password,
+			UserRole: req.Role,
 		}
 
 		if err := s.store.User().Create(u); err != nil {
