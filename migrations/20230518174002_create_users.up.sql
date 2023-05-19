@@ -11,5 +11,7 @@ Create TABLE tasks (
     id bigserial not null primary key,
     email_curator varchar not null,
     email_employee varchar not null,
-    description varchar not null
+    description varchar not null,
+    status bool not null default false,
+    reward int not null default 1
 );

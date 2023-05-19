@@ -41,10 +41,11 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) configureRouter() {
-	s.router.HandleFunc("/users", s.handleUsersCreate()).Methods("POST")
+	s.router.HandleFunc("/users/create", s.handleUsersCreate()).Methods("POST")
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
 	s.router.HandleFunc("/task", s.handlerTaskCreate()).Methods("POST")
 	s.router.HandleFunc("/users/get", s.handleGetUser()).Methods("POST")
+	s.router.HandleFunc("/users", s.handleGetAllUsers()).Methods("POST")
 }
 
 func (s *server) handleUsersCreate() http.HandlerFunc {
@@ -171,6 +172,39 @@ func (s *server) handleGetUser() http.HandlerFunc {
 		}
 
 		s.respond(w, r, http.StatusAccepted, u)
+	}
+}
+
+func (s *server) handleGetAllUsers() http.HandlerFunc {
+
+	type request struct {
+		Role string `json:"role"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		if req.Role != "" {
+			list_u, err := s.store.User().GetAllUser_filter(req.Role)
+			if err != nil {
+				s.error(w, r, http.StatusUnprocessableEntity, err)
+				return
+			}
+			s.respond(w, r, http.StatusAccepted, list_u)
+			return
+		}
+
+		list_u, err := s.store.User().GetAllUser()
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusAccepted, list_u)
 	}
 }
 

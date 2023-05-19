@@ -75,3 +75,52 @@ func (r *UserRepository) FindById(id int) (*model.User, error) {
 
 	return u, nil
 }
+
+func (r *UserRepository) GetAllUser() ([]model.User, error) {
+	var array_u []model.User
+	rows, err := r.store.db.Query(
+		"Select id, email, name_user, role, user_level from users")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		u := &model.User{}
+		if err := rows.Scan(
+			&u.ID,
+			&u.Email,
+			&u.UserName,
+			&u.UserRole,
+			&u.UserLevel,
+		); err != nil {
+			return nil, err
+		}
+		array_u = append(array_u, *u)
+	}
+	return array_u, nil
+}
+
+func (r *UserRepository) GetAllUser_filter(role_line string) ([]model.User, error) {
+	var array_u []model.User
+	rows, err := r.store.db.Query(
+		"Select id, email, name_user, role, user_level from users where role = $1",
+		role_line)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		u := &model.User{}
+		if err := rows.Scan(
+			&u.ID,
+			&u.Email,
+			&u.UserName,
+			&u.UserRole,
+			&u.UserLevel,
+		); err != nil {
+			return nil, err
+		}
+		array_u = append(array_u, *u)
+	}
+	return array_u, nil
+}
