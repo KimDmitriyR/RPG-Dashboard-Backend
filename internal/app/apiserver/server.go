@@ -208,6 +208,28 @@ func (s *server) handleGetAllUsers() http.HandlerFunc {
 	}
 }
 
+func (s *server) handleTaskComplete() http.HandlerFunc {
+
+	type request struct {
+		Id    int    `json:"id"`
+		Email string `json:"email"`
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		err := s.store.Task().StatusUpdate(req.Email)
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+		s.respond(w, r, http.StatusAccepted, "Updated")
+	}
+}
+
 func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err error) {
 	s.respond(w, r, code, map[string]string{"error": err.Error()})
 }

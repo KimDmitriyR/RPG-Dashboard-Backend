@@ -14,4 +14,5 @@ type UserRepository interface {
 
 type TaskRepository interface {
 	Create(*model.Task) error
+	StatusUpdate(string) error
 }
