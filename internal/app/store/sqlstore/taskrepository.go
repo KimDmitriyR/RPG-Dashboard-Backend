@@ -13,11 +13,28 @@ type TaskRepository struct {
 func (r *TaskRepository) Create(t *model.Task) error {
 	t.Status = "false"
 	return r.store.db.QueryRow(
-		"INSERT INTO tasks(email_curator, email_employee, description) values($1, $2, $3) returning id",
+		"INSERT INTO tasks(email_curator, email_employee, description, reward) values($1, $2, $3, $4) returning id",
 		t.Email_curator,
 		t.Email_employee,
 		t.Description,
+		t.Reward,
 	).Scan(&t.ID)
+}
+
+func (r *TaskRepository) SearchReward(id int) (int, error) {
+	var reward int
+	if err := r.store.db.QueryRow(
+		"SELECT reward FROM tasks WHERE id = $1",
+		id,
+	).Scan(
+		reward,
+	); err != nil {
+		if err == sql.ErrNoRows {
+			return 0, store.ErrRecordNotFound
+		}
+		return 0, err
+	}
+	return reward, nil
 }
 
 func (r *TaskRepository) StatusUpdate(email string) error {

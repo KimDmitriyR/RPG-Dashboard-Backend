@@ -10,6 +10,7 @@ type UserRepository interface {
 	FindById(int) (*model.User, error)
 	GetAllUser() ([]model.User, error)
 	GetAllUser_filter(role_line string) ([]model.User, error)
+	LevelUpdate(string, int) error
 }
 
 type TaskRepository interface {
