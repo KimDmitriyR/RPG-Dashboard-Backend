@@ -15,3 +15,9 @@ Create TABLE tasks (
     status bool not null default false,
     reward int not null default 1
 );
+
+Create TABLE skills (
+    id bigserial not null primary key,
+    group_skills varchar not null,
+    description varchar not null
+)

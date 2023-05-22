@@ -17,3 +17,6 @@ type TaskRepository interface {
 	Create(*model.Task) error
 	StatusUpdate(string) error
 }
+
+type SkillRepository interface {
+}

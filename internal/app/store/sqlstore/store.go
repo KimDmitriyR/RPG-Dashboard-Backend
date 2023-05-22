@@ -8,9 +8,10 @@ import (
 )
 
 type Store struct {
-	db             *sql.DB
-	UserRepository *UserRepository
-	TaskRepository *TaskRepository
+	db              *sql.DB
+	UserRepository  *UserRepository
+	TaskRepository  *TaskRepository
+	SkillRepository *SkillRepository
 }
 
 func New(db *sql.DB) *Store {
